@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="Hello" basedir="." default="junitreport">
+
+<property name="src.dir" value="src"/>
+<property name="classes.dir" value="bin"/>
+<property name="lib.dir" value="lib"/>
+<property name="report.dir" value="reports"/>
+
+<path id="classpath">
+	<fileset dir="${lib.dir}" includes="**/*.jar"/>
+</path>
+<path id="application" location="${ant.project.name}.jar"/>
+
+<target name="clean" description="cleaning jar file and .class files">
+	<delete dir="${classes.dir}" failonerror="false"/>
+	<delete file="${ant.project.name}.jar"/>
+	<delete dir="${report.dir}" failonerror="false"/>
+</target>
+
+<target name="compile" description="compiling java file" depends="clean">
+	<mkdir dir="${classes.dir}"/>
+	<javac srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath"/>
+</target>
+
+<target name="jar" description="creating jar file" depends="compile">
+	<jar basedir="${classes.dir}" destfile="${ant.project.name}.jar"/>
+</target>
+
+<target name="sai" description="executing the file" depends="jar">
+	<java classname="com.manju.hello.HelloWorld" classpath="${ant.project.name}.jar"/>
+</target>
+
+<target name="use" description="using ant jar" depends="jar">
+	<taskdef name="HelloExe" classname="com.manju.hello.HelloExe" classpath="${ant.project.name}.jar"/>
+	<HelloExe/>
+</target>	
+
+<target name="run" description="Running junit tests" depends="jar">
+	<mkdir dir="${report.dir}"/>
+	<junit printsummary="yes" haltonfailure="yes" showoutput="yes">
+	     <classpath>
+ 		<path refid="classpath"/>
+		<path refid="application"/>
+	     </classpath>
+		<formatter type="xml"/>
+	     <batchtest fork="yes">
+		<fileset dir="${src.dir}" includes="**/*Test.java"/>
+	     </batchtest>
+	</junit>
+</target>
+
+<target name="junitreport" description="junit report" depends="run">
+        <junitreport todir="${report.dir}">
+            <fileset dir="${report.dir}" includes="TEST-*.xml"/>
+            <report todir="${report.dir}"/>
+        </junitreport>
+    </target>
+
+</project>
+
